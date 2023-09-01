@@ -2,9 +2,18 @@ import React, { useState, useEffect } from 'react'
 import Image from 'next/image';
 import axios from 'axios'
 import Editor from '@monaco-editor/react';
-import samples from "./samples"
 import cpp from "./image/cpp.png"
 import python from "./image/python.png"
+const samples = {
+    cpp: `#include <iostream>
+  using namespace std;
+  int main() {
+      cout << "Hello Shubham";
+      return 0;
+  }`,
+    python: `# python3
+  print("Hello Shubham !!!")`,
+  };
 const editorOptions = {
     scrollBeyondLastLine: false,
     fontSize: "14px",
