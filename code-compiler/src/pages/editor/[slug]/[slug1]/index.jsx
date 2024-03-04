@@ -1,39 +1,44 @@
+import { useRouter } from 'next/router';
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image';
 import Editor from '@monaco-editor/react';
-import cpp from "./image/cpp.png"
-import python from "./image/python.png"
+import cpp from "../../../LandingPage/image/cpp.png"
+import python from "../../../LandingPage/image/python.png"
 const samples = {
-    cpp: `#include <iostream>
-  using namespace std;
-  int main() {
-      cout << "Hello Shubham";
-      return 0;
-  }`,
-    python: `# python3
-  print("Hello Shubham !!!")`,
-  };
+  cpp: `#include <iostream>
+using namespace std;
+int main() {
+    cout << "Hello Shubham";
+    return 0;
+}`,
+  python: `# python3
+print("Hello Shubham !!!")`,
+};
 const editorOptions = {
-    scrollBeyondLastLine: false,
-    fontSize: "14px",
-    folding: false,
+  scrollBeyondLastLine: false,
+  fontSize: "14px",
+  folding: false,
 }
 const inputOptions = {
-    minimap: { enabled: false },
-    automaticLayout: true,
-    scrollBeyondLastLine: false,
-    fontSize: "14px",
-    lineDecorationsWidth: 5,
+  minimap: { enabled: false },
+  automaticLayout: true,
+  scrollBeyondLastLine: false,
+  fontSize: "14px",
+  lineDecorationsWidth: 5,
 };
 const outputOptions = {
-    minimap: { enabled: false },
-    automaticLayout: true,
-    scrollBeyondLastLine: false,
-    fontSize: "14px",
-    lineDecorationsWidth: 5,
+  minimap: { enabled: false },
+  automaticLayout: true,
+  scrollBeyondLastLine: false,
+  fontSize: "14px",
+  lineDecorationsWidth: 5,
 };
 const Index = () => {
-    const [language, setLanguage] = useState("python");
+  const router = useRouter();
+  const { slug, slug1 } = router.query;
+  const userId=slug;
+  const problemId=slug1;
+  const [language, setLanguage] = useState("cpp");
     const [code, setCode] = useState(samples[language]);
     const [input, setInput] = useState("// enter input here");
     const [output, setOutput] = useState("");
@@ -46,11 +51,6 @@ const Index = () => {
         python: samples["python"],
         cpp: samples["cpp"],
     };
-    useEffect(()=>{
-        setCode(samples[language]);
-        setOutput("//output")
-        setLanguageIcon(language)
-    },[language])
     const toggleTheme = (idName) => {
         let currentClassName = document.getElementById(idName).className;
         let newClassName = currentClassName;
@@ -80,12 +80,61 @@ const Index = () => {
     };
     const handleSubmit=async()=>{
         setStatus("running")
-        console.log(output);
-        //will implement later after adding the backend
+        try{
+          const res=await fetch("https://api.shubhamiitbhu.in/code",{
+            method:"POST",
+            headers:{
+              "Content-Type":"application/json"
+            },
+            body:JSON.stringify({
+              code:code,
+              submittedBy:userId,
+              questionId:problemId,
+            })
+          })
+          const data=await res.json();
+          console.log(data);
+          alert("Code Submitted Successfully");
+        }catch(e){
+          console.log(e);
+        }
+        
     }
-    return (
-        <>
-            <div id='App' className='App-dark'>
+    useEffect(() => {
+      const fetchSolvedQuestions = async () => {
+        try {
+          const response = await fetch(
+            `https://api.shubhamiitbhu.in/code/get-code-by-question-id-and-user-id`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                user_id: userId,
+              },
+              body: JSON.stringify({
+                userId: userId,
+                questionId: problemId,
+              }),
+            },
+          );
+          const data = await response.json();
+          console.log(data);
+          if(data.length>0){
+            setCode(data[0].code);
+          }
+          // setAnswers(data[0].code);
+        } catch (error) {
+          console.error("Error fetching solved questions:", error);
+        }
+      };
+  
+      if (userId) {
+        fetchSolvedQuestions();
+      }
+    }, [userId, slug,slug1,problemId]);
+  return (
+    <>
+      <div id='App' className='App-dark'>
                 <div id='header' className='header-dark'>
                     <h3 id="app-name" className="app-name-dark">
                         <i className="fas fa-solid fa-cube" aria-hidden="true"></i>
@@ -127,11 +176,9 @@ const Index = () => {
                             setLanguageIcon(`./resources/${language}.png`);
                         }}
                     >
-                        {/* <option value={"python"}>Python</option> */}
                         <option value={"cpp"}>C++</option>
                     </select>
                 </button>
-                {/* run button */}
                 <button className="btn run-btn" 
                 onClick={handleSubmit}
                 >
@@ -139,7 +186,7 @@ const Index = () => {
                         className="fas fa-play fa-fade run-icon"
                         aria-hidden="true"
                     ></i>
-                    &nbsp; Run
+                    &nbsp; Submit
                 </button>
             </div>    
             <div className="editor">
@@ -181,10 +228,8 @@ const Index = () => {
                 </div>
             </div>
             </div>
-           
-                
-        </>
-    )
-}
+    </>
+  );
+};
 
-export default Index
+export default Index;
