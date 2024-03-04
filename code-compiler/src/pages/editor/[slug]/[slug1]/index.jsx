@@ -138,7 +138,7 @@ const Index = () => {
                 <div id='header' className='header-dark'>
                     <h3 id="app-name" className="app-name-dark">
                         <i className="fas fa-solid fa-cube" aria-hidden="true"></i>
-                        &nbsp; Online Code Runner
+                        &nbsp; Shubham IITBHU
                     </h3>
                     <div className="nav-right-options">
                     <i
