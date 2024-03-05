@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Editor from '@monaco-editor/react';
 import cpp from "../../../LandingPage/image/cpp.png"
 import python from "../../../LandingPage/image/python.png"
+import { Audio, Hourglass, Watch } from 'react-loader-spinner'
 const samples = {
   cpp: `#include <iostream>
 using namespace std;
@@ -44,6 +45,7 @@ const Index = () => {
     const [output, setOutput] = useState("");
     const [editorMode, setEditorMode] = useState("vs-dark");
     const [status, setStatus] = useState("");
+    const [outButtonClicked, setOutButtonClicked] = useState(false);
     const [jobId, setJobId] = useState("");
     const [jobDetails, setJobDetails] = useState(null);
     const [languageIcon, setLanguageIcon] = useState(language);
@@ -132,6 +134,29 @@ const Index = () => {
         fetchSolvedQuestions();
       }
     }, [userId, slug,slug1,problemId]);
+    const codeRunner=async()=>{
+      setOutButtonClicked(true);
+      const res= await fetch("https://api.shubhamiitbhu.in/code/run-code",{
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+          code:code,
+          submittedBy:userId,
+          questionId:problemId,
+        })
+      })
+      const data=await res.json();
+      console.log(data);
+      setOutput(data.output);
+      setOutButtonClicked(false);
+    }
+    useEffect(()=>{
+      if(status==="running"){
+        codeRunner();
+      }
+    },[output,outButtonClicked])
   return (
     <>
       <div id='App' className='App-dark'>
@@ -188,6 +213,36 @@ const Index = () => {
                     ></i>
                     &nbsp; Submit
                 </button>
+                {outButtonClicked ?(<>
+                  <button className="btn run-btn"
+                >
+                    <i
+                        className="fas fa-play fa-fade run-icon"
+                        aria-hidden="true"
+                    >
+                      <Watch
+  visible={true}
+  height="28"
+  width="28"
+  radius="14"
+  color="#4fa94d"
+  ariaLabel="watch-loading"
+  wrapperStyle={{}}
+  wrapperClass=""
+  />
+                    </i>
+                   
+                </button>
+                </>):(<> <button className="btn run-btn"
+                onClick={codeRunner}
+                >
+                    <i
+                        className="fas fa-play fa-fade run-icon"
+                        aria-hidden="true"
+                    ></i>
+                    &nbsp; Run
+                </button></>)}
+               
             </div>    
             <div className="editor">
                 <Editor
@@ -215,7 +270,16 @@ const Index = () => {
                         onChange={(e) => setInput(e)}
                     />
                 </div>
-                <div className="std-output">
+                {
+                  outButtonClicked ? (<><Hourglass
+  visible={true}
+  height="80"
+  width="80"
+  ariaLabel="hourglass-loading"
+  wrapperStyle={{}}
+  wrapperClass=""
+  colors={['#306cce', '#72a1ed']}
+  /></>):(<><div className="std-output">
                     <Editor
                         height="100%"
                         width="100%"
@@ -224,8 +288,11 @@ const Index = () => {
                         defaultValue={"// output"}
                         value={output}
                         options={outputOptions}
+                        
                     />
-                </div>
+                </div></>)
+                }
+                
             </div>
             </div>
     </>
