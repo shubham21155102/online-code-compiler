@@ -6,7 +6,7 @@ import cpp from "../../../LandingPage/image/cpp.png"
 import python from "../../../LandingPage/image/python.png"
 import { Audio, Hourglass, Watch } from 'react-loader-spinner'
 const samples = {
-  cpp: `#include <iostream>
+  cpp: `#include <bits/stdc++.h>
 using namespace std;
 int main() {
     cout << "Hello Shubham";
