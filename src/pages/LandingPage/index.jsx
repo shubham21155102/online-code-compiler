@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Editor from '@monaco-editor/react';
 import cpp from "./image/cpp.png"
 import python from "./image/python.png"
+import { Audio, Hourglass, MagnifyingGlass, Watch } from 'react-loader-spinner'
 const samples = {
     cpp: `#include <iostream>
   using namespace std;
@@ -33,7 +34,7 @@ const outputOptions = {
     lineDecorationsWidth: 5,
 };
 const Index = () => {
-    const [language, setLanguage] = useState("python");
+    const [language, setLanguage] = useState("cpp");
     const [code, setCode] = useState(samples[language]);
     const [input, setInput] = useState("// enter input here");
     const [output, setOutput] = useState("");
@@ -42,6 +43,7 @@ const Index = () => {
     const [jobId, setJobId] = useState("");
     const [jobDetails, setJobDetails] = useState(null);
     const [languageIcon, setLanguageIcon] = useState(language);
+    const [outButtonClicked, setOutButtonClicked] = useState(false);
     const stubs = {
         python: samples["python"],
         cpp: samples["cpp"],
@@ -80,8 +82,23 @@ const Index = () => {
     };
     const handleSubmit=async()=>{
         setStatus("running")
-        console.log(output);
-        //will implement later after adding the backend
+        setOutButtonClicked(true);
+        const res= await fetch("https://api.shubhamiitbhu.in/code/run-code",{
+          method:"POST",
+          headers:{
+            "Content-Type":"application/json"
+          },
+          body:JSON.stringify({
+            code:code,
+            submittedBy:"uysfjgbc",
+            questionId:"fwgradhts",
+          })
+        })
+        const data=await res.json();
+        console.log(data);
+        setOutput(data.output);
+        setOutButtonClicked(false);
+        console.log(output)
     }
     return (
         <>
@@ -127,11 +144,10 @@ const Index = () => {
                             setLanguageIcon(`./resources/${language}.png`);
                         }}
                     >
-                        {/* <option value={"python"}>Python</option> */}
+                        {/* <option value={"python"}>Python</option>  */}
                         <option value={"cpp"}>C++</option>
                     </select>
                 </button>
-                {/* run button */}
                 <button className="btn run-btn" 
                 onClick={handleSubmit}
                 >
@@ -139,7 +155,7 @@ const Index = () => {
                         className="fas fa-play fa-fade run-icon"
                         aria-hidden="true"
                     ></i>
-                    &nbsp; Run
+                    {outButtonClicked ? <Hourglass color="white" height={20} width={20} /> : <>&nbsp; Run</>}
                 </button>
             </div>    
             <div className="editor">
@@ -156,20 +172,17 @@ const Index = () => {
                 />
             </div>
             <div className="std-input-output">
-                <div className="std-input">
-                    <Editor
-                        height="100%"
-                        width="100%"
-                        theme={editorMode}
-                        defaultLanguage="plaintext"
-                        defaultValue={"// enter input here"}
-                        value={input}
-                        options={inputOptions}
-                        onChange={(e) => setInput(e)}
-                    />
-                </div>
                 <div className="std-output">
-                    <Editor
+                {outButtonClicked ? <MagnifyingGlass
+  visible={true}
+  height="80"
+  width="80"
+  ariaLabel="magnifying-glass-loading"
+  wrapperStyle={{}}
+  wrapperClass="magnifying-glass-wrapper"
+  glassColor="#c0efff"
+  color="#e15b64"
+  /> : <> <Editor
                         height="100%"
                         width="100%"
                         theme={editorMode}
@@ -177,7 +190,8 @@ const Index = () => {
                         defaultValue={"// output"}
                         value={output}
                         options={outputOptions}
-                    />
+                    /></>}
+                   
                 </div>
             </div>
             </div>
