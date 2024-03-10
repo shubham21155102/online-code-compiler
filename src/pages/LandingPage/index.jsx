@@ -3,17 +3,29 @@ import Image from 'next/image';
 import Editor from '@monaco-editor/react';
 import cpp from "./image/cpp.png"
 import python from "./image/python.png"
-import { Audio, Hourglass, MagnifyingGlass, Watch } from 'react-loader-spinner'
+import { Hourglass, MagnifyingGlass, Watch } from 'react-loader-spinner'
 const samples = {
-    cpp: `#include <iostream>
-  using namespace std;
-  int main() {
-      cout << "Hello Shubham";
-      return 0;
-  }`,
-    python: `# python3
-  print("Hello Shubham !!!")`,
+  cpp: `#include <iostream>
+using namespace std;
+int main() {
+    cout << "Hello Shubham";
+    return 0;
+}`,
+python: `# python3
+print("Hello Shubham !!!")`,
+c: `#include <stdio.h>
+int main() {
+        printf("Hello Shubham !!!");
+        return 0;
+}`,
+    java: `class Main {
+        public static void main(String[] args) {
+            System.out.println("Hello Shubham !!!");
+        }
+    }`,
+
   };
+
 const editorOptions = {
     scrollBeyondLastLine: false,
     fontSize: "14px",
@@ -92,6 +104,7 @@ const Index = () => {
             code:code,
             submittedBy:"uysfjgbc",
             questionId:"fwgradhts",
+            language:language
           })
         })
         const data=await res.json();
@@ -125,7 +138,7 @@ const Index = () => {
                 <div className="secondary-nav-items">
                 <button className="btn logo-btn" disabled={true}>
                 <Image
- src={language === "cpp" ? cpp : python}
+ src={`/${language}.png`}
   width={20}
   height={20}
   className="image"
@@ -140,12 +153,14 @@ const Index = () => {
                             setStatus("");
                             setJobDetails(null);
                             setLanguage(e.target.value);
-                            setCode(stubs[e.target.value]);
+                            setCode(stubs[e.target.value]);``
                             setLanguageIcon(`./resources/${language}.png`);
                         }}
                     >
-                        {/* <option value={"python"}>Python</option>  */}
+                        <option value={"python"}>Python</option> 
+                        <option value={"c"}>C</option>
                         <option value={"cpp"}>C++</option>
+                        <option value={"java"}>Java</option>
                     </select>
                 </button>
                 <button className="btn run-btn" 
