@@ -61,7 +61,14 @@ const Index = () => {
         cpp: samples["cpp"],
     };
     useEffect(()=>{
-        setCode(samples[language]);
+        const localStorageCode=localStorage.getItem("code");
+        if(localStorageCode){
+            setCode(localStorageCode);
+        }
+        else{
+            setCode(samples[language]);
+        }
+        
         setOutput("//output")
         setLanguageIcon(language)
     },[language])
@@ -93,6 +100,7 @@ const Index = () => {
         }
     };
     const handleSubmit=async()=>{
+        localStorage.setItem("code",code);
         setStatus("running")
         setOutButtonClicked(true);
         const res= await fetch("https://api.shubhamiitbhu.in/code/run-code",{
